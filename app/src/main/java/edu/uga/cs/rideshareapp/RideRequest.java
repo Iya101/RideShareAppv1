@@ -1,44 +1,71 @@
 package edu.uga.cs.rideshareapp;
 
 public class RideRequest {
-    private String requestId;
-    private String destination;
-    private String time;
 
-    // Default constructor is required for Firebase
+    private String key;           // Unique identifier for the ride request
+    private String fromLocation;  // Pick-up location
+    private String toLocation;    // Destination
+    private String date;          // Date of the ride
+    private String comments;      // Additional comments or requirements
+
     public RideRequest() {
+        this.key = null;
+        this.fromLocation = null;
+        this.toLocation = null;
+        this.date = null;
+        this.comments = null;
     }
 
-    // Constructor with parameters
-    public RideRequest(String requestId, String destination, String time) {
-        this.requestId = requestId;
-        this.destination = destination;
-        this.time = time;
+    public RideRequest(String fromLocation, String toLocation, String date, String comments) {
+        this.key = null;
+        this.fromLocation = fromLocation;
+        this.toLocation = toLocation;
+        this.date = date;
+        this.comments = comments;
     }
 
-    // Getters and setters
-    public String getRequestId() {
-        return requestId;
+    public String getKey() {
+        return key;
     }
 
-    public void setRequestId(String requestId) {
-        this.requestId = requestId;
+    public void setKey(String key) {
+        this.key = key;
     }
 
-    public String getDestination() {
-        return destination;
+    public String getFromLocation() {
+        return fromLocation;
     }
 
-    public void setDestination(String destination) {
-        this.destination = destination;
+    public void setFromLocation(String fromLocation) {
+        this.fromLocation = fromLocation;
     }
 
-    public String getTime() {
-        return time;
+    public String getToLocation() {
+        return toLocation;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setToLocation(String toLocation) {
+        this.toLocation = toLocation;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
+    }
+
+    @Override
+    public String toString() {
+        return "Ride from " + fromLocation + " to " + toLocation + " on " + date + " | Comments: " + comments;
     }
 }
-

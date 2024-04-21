@@ -60,4 +60,3 @@ public class RideOffer {
         this.time = time;
     }
 }
-
