@@ -7,11 +7,14 @@ public class RideOffer {
     private String date;
     private String time;
 
+    private String key;
+
     // Default constructor is required for Firebase
     public RideOffer() {
     }
 
     public RideOffer(String offerId, String userId, String destination, String date, String time) {
+        this.key = null;
         this.offerId = offerId;
         this.userId = userId;
         this.destination = destination;
@@ -58,5 +61,13 @@ public class RideOffer {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 }
