@@ -1,15 +1,22 @@
 package edu.uga.cs.rideshareapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
@@ -28,18 +35,31 @@ public class RideRequestRecyclerAdapter extends RecyclerView.Adapter<RideRequest
     // The adapter must have a ViewHolder class to "hold" one item to show.
     class RideRequestHolder extends RecyclerView.ViewHolder {
 
-        TextView companyName;
-        TextView phone;
-        TextView url;
-        TextView comments;
+        TextView userId;
+        TextView fromLocation;
+        TextView toLocation;
+        TextView date;
+        TextView time;
+        Button acceptButton;
 
         public RideRequestHolder(View itemView ) {
             super(itemView);
+            userId = itemView.findViewById( R.id.userId);
+            fromLocation = itemView.findViewById( R.id.fromLocation );
+            toLocation = itemView.findViewById( R.id.toLocation );
+            date = itemView.findViewById( R.id.date );
+            time = itemView.findViewById( R.id.time );
+            acceptButton = itemView.findViewById(R.id.acceptButton);
 
-            companyName = itemView.findViewById( R.id.companyName );
-            phone = itemView.findViewById( R.id.phone );
-            url = itemView.findViewById( R.id.url );
-            comments = itemView.findViewById( R.id.comments );
+            acceptButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        acceptRideRequest(position);
+                    }
+                }
+            });
         }
     }
 
@@ -58,15 +78,17 @@ public class RideRequestRecyclerAdapter extends RecyclerView.Adapter<RideRequest
         Log.d( DEBUG_TAG, "onBindViewHolder: " + rideRequest );
 
         String key = rideRequest.getKey();
-        String company = rideRequest.getFromLocation();
-        String phone = rideRequest.getToLocation();
-        String url = rideRequest.getDate();
-        String comments = rideRequest.getComments();
+        String userId = rideRequest.getUserId();
+        String fromLocation = rideRequest.getFromLocation();
+        String toLocation = rideRequest.getToLocation();
+        String date = rideRequest.getDate();
+        String time = rideRequest.getTime();
 
-        holder.companyName.setText(  rideRequest.getFromLocation());
-        holder.phone.setText( rideRequest.getToLocation() );
-        holder.url.setText( rideRequest.getDate() );
-        holder.comments.setText( rideRequest.getComments() );
+        holder.userId.setText( rideRequest.getUserId());
+        holder.fromLocation.setText(  rideRequest.getFromLocation());
+        holder.toLocation.setText( rideRequest.getToLocation() );
+        holder.date.setText( rideRequest.getDate() );
+        holder.time.setText( rideRequest.getTime() ); //time is time
 
         // We can attach an OnClickListener to the itemView of the holder;
         // itemView is a public field in the Holder class.
@@ -80,7 +102,7 @@ public class RideRequestRecyclerAdapter extends RecyclerView.Adapter<RideRequest
                 //Log.d( TAG, "onBindViewHolder: getItemId: " + holder.getItemId() );
                 //Log.d( TAG, "onBindViewHolder: getAdapterPosition: " + holder.getAdapterPosition() );
                 EditRideRequestDialogFragment editJobFragment =
-                        EditRideRequestDialogFragment.newInstance( holder.getAdapterPosition(), key, company, phone, url, comments );
+                        EditRideRequestDialogFragment.newInstance( holder.getAdapterPosition(), key, userId, fromLocation, toLocation, date, time );
                 editJobFragment.show( ((AppCompatActivity)context).getSupportFragmentManager(), null);
             }
         });
@@ -90,4 +112,37 @@ public class RideRequestRecyclerAdapter extends RecyclerView.Adapter<RideRequest
     public int getItemCount() {
         return rideRequestsList.size();
     }
+
+    public void acceptRideRequest(int position) {
+        RideRequest rideRequest = rideRequestsList.get(position);
+        String driverId = FirebaseAuth.getInstance().getCurrentUser().getUid(); // Assumes user is logged in
+
+        // Update ride request with acceptance details
+        rideRequest.setAccepted(true);
+        rideRequest.setDriverId(driverId); // Assuming RideRequest model has these fields
+
+        // Push to acceptedRides in Firebase
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference newAcceptedRef = dbRef.child("acceptedRides").push();
+        newAcceptedRef.setValue(rideRequest);
+
+        // Add reference for both driver and rider for easy retrieval
+        dbRef.child("users").child(rideRequest.getUserId()).child("acceptedRides").child(newAcceptedRef.getKey()).setValue(true);
+        dbRef.child("users").child(driverId).child("acceptedRides").child(newAcceptedRef.getKey()).setValue(true);
+
+        // Remove from rideRequests
+        dbRef.child("rideRequests").child(rideRequest.getKey()).removeValue();
+
+        // Update local list and notify adapter
+        rideRequestsList.remove(position);
+        notifyItemRemoved(position);
+
+        // Show a Toast message
+        Toast.makeText(context, "Ride accepted successfully!", Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(context, AcceptedRidesActivity.class);
+        intent.putExtra("rideKey", newAcceptedRef.getKey()); // Passing the unique key of the accepted ride
+        context.startActivity(intent);
+    }
+
 }

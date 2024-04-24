@@ -23,16 +23,21 @@ public class RideShareAppManagementActivity extends AppCompatActivity {
         Log.d( DEBUG_TAG, "RideShareAppManagementActivity.onCreate()" );
 
         Button viewRideRequests = findViewById(R.id.button1);
-        Button viewRideOffers = findViewById(R.id.button2);
+        Button createRideOffers = findViewById(R.id.button2);
+        Button viewRideOffers = findViewById(R.id.button3);
+        Button logoutButton = findViewById(R.id.logoutButton);
         signedInTextView = findViewById( R.id.textView3 );
 
 
         viewRideRequests.setOnClickListener( new RideRequestButtonClickListener() );
-        viewRideOffers.setOnClickListener( new RideOffersButtonClickListener() );
+        createRideOffers.setOnClickListener( new RideOffersButtonClickListener() );
+        viewRideOffers.setOnClickListener(new ViewRideOffersButtonClickListener() );
+        logoutButton.setOnClickListener(new LogoutButtonClickListener());
 
-    // Setup a listener for a change in the sign in status (authentication status change)
-    // when it is invoked, check if a user is signed in and update the UI text view string,
-    // as needed.
+
+        // Setup a listener for a change in the sign in status (authentication status change)
+       // when it is invoked, check if a user is signed in and update the UI text view string,
+       // as needed.
         FirebaseAuth.getInstance().addAuthStateListener(new FirebaseAuth.AuthStateListener() {
         @Override
         public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -67,8 +72,27 @@ public class RideShareAppManagementActivity extends AppCompatActivity {
             view.getContext().startActivity(intent);
         }
     }
+    private class ViewRideOffersButtonClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(view.getContext(), ViewRideOffersActivity.class);
+            view.getContext().startActivity(intent);
+        }
+    }
 
-    // These activity callback methods are not needed and are for edational purposes only
+    private class LogoutButtonClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            Log.d(DEBUG_TAG, "Attempting to sign out.");
+            FirebaseAuth.getInstance().signOut(); // Sign out from Firebase
+            Intent intent = new Intent(view.getContext(), MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            view.getContext().startActivity(intent);
+            finish();
+        }
+    }
+
+    // These activity callback methods are not needed and are for educational purposes only
     @Override
     protected void onStart() {
         Log.d( DEBUG_TAG, "RideShareApp: ManagementActivity.onStart()" );
