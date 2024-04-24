@@ -12,95 +12,141 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
-public class EditRideofferDialogFragment extends DialogFragment {
 
-    public static final int SAVE = 1;   // update an existing ride offer
-    public static final int DELETE = 2; // delete an existing ride offer
+// This is a DialogFragment to handle edits to a RideOffer.
+// The edits are: updates and deletions of existing JobLeads.
+public class EditRideOfferDialogFragment extends DialogFragment {
 
-    private EditText destinationView;
+    // indicate the type of an edit
+    public static final int SAVE = 1;   // update an existing job lead
+    public static final int DELETE = 2; // delete an existing job lead
+
+    private EditText userIdView;
+    private EditText toLocationView;
+    private EditText fromLocationView;
     private EditText dateView;
     private EditText timeView;
 
-    int position;
+    int position;     // the position of the edited RideOffer on the list of job leads
     String key;
-    String userId; // User ID of the offer owner
-    String destination;
+    String userId;
+    String offerId;
+    String fromLocation;
+    String toLocation;
     String date;
     String time;
 
+    // A callback listener interface to finish up the editing of a RideOffer.
+    // ReviewJobLeadsActivity implements this listener interface, as it will
+    // need to update the list of JobLeads and also update the RecyclerAdapter to reflect the
+    // changes.
     public interface EditRideOfferDialogListener {
         void updateRideOffer(int position, RideOffer rideOffer, int action);
     }
 
-    public static EditRideofferDialogFragment newInstance(int position, String key, String userId, String destination, String date, String time) {
-        EditRideofferDialogFragment fragment = new EditRideofferDialogFragment();
+    public static EditRideOfferDialogFragment newInstance(int position, String key, String fromLocation, String toLocation, String date, String time, String userId) {
+        EditRideOfferDialogFragment dialog = new EditRideOfferDialogFragment();
+
+        // Supply job lead values as an argument.
         Bundle args = new Bundle();
-        args.putString("key", key);
-        args.putString("userId", userId);
-        args.putInt("position", position);
-        args.putString("destination", destination);
+        args.putString( "key", key );
+        args.putString( "userId", userId );
+        args.putInt( "position", position );
+        args.putString("from where", fromLocation);
+        args.putString("to where", toLocation);
         args.putString("date", date);
         args.putString("time", time);
-        fragment.setArguments(args);
-        return fragment;
+        dialog.setArguments(args);
+
+        return dialog;
     }
 
     @NonNull
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        key = getArguments().getString("key");
-        userId = getArguments().getString("userId");
-        position = getArguments().getInt("position");
-        destination = getArguments().getString("destination");
-        date = getArguments().getString("date");
-        time = getArguments().getString("time");
+    public Dialog onCreateDialog( Bundle savedInstanceState ) {
+
+        key = getArguments().getString( "key" );
+        position = getArguments().getInt( "position" );
+        userId = getArguments().getString( "userId" );
+        fromLocation = getArguments().getString( "from where" );
+        toLocation = getArguments().getString( "phone" );
+        date = getArguments().getString( "url" );
+        time = getArguments().getString( "time" );
 
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View layout = inflater.inflate(R.layout.fragment_edit_rideoffer_dialog, null);
+        final View layout = inflater.inflate( R.layout.fragment_add_ride_offer_dialog, getActivity().findViewById( R.id.root ) );
 
-        destinationView = layout.findViewById(R.id.editTextDestination);
-        dateView = layout.findViewById(R.id.editTextDate);
-        timeView = layout.findViewById(R.id.editTextTime);
+        userIdView = layout.findViewById( R.id.editText1 );
+        fromLocationView = layout.findViewById( R.id.editText2 );
+        toLocationView = layout.findViewById( R.id.editText3 );
+        dateView = layout.findViewById( R.id.editText4 );
+        timeView = layout.findViewById( R.id.editText5);
 
-        destinationView.setText(destination);
-        dateView.setText(date);
-        timeView.setText(time);
+        // Pre-fill the edit texts with the current values for this job lead.
+        // The user will be able to modify them.
+        fromLocationView.setText( fromLocation );
+        toLocationView.setText( toLocation );
+        dateView.setText( date );
+        timeView.setText( time );
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setView(layout)
-                .setTitle("Edit Ride Offer")
-                .setNegativeButton(android.R.string.cancel, (dialog, whichButton) -> dialog.dismiss())
-                .setPositiveButton("SAVE", new SaveButtonClickListener())
-                .setNeutralButton("DELETE", new DeleteButtonClickListener());
+        AlertDialog.Builder builder = new AlertDialog.Builder( getActivity(), R.style.AlertDialogStyle );
+        builder.setView(layout);
 
+        // Set the title of the AlertDialog
+        builder.setTitle( "Edit Job Lead" );
+
+        // The Cancel button handler
+        builder.setNegativeButton( android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // close the dialog
+                dialog.dismiss();
+            }
+        });
+
+        // The Save button handler
+        builder.setPositiveButton( "SAVE", new SaveButtonClickListener() );
+
+        // The Delete button handler
+        builder.setNeutralButton( "DELETE", new DeleteButtonClickListener() );
+
+        // Create the AlertDialog and show it
         return builder.create();
     }
 
     private class SaveButtonClickListener implements DialogInterface.OnClickListener {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            String newDestination = destinationView.getText().toString();
-            String newDate = dateView.getText().toString();
-            String newTime = timeView.getText().toString();
+            String offerId = userIdView.getText().toString();
+            String userId = userIdView.getText().toString();
+            String fromLocation = fromLocationView.getText().toString();
+            String toLocation = toLocationView.getText().toString();
+            String date = dateView.getText().toString();
+            String time = timeView.getText().toString();
+            RideOffer rideOffer = new RideOffer( offerId, userId, fromLocation, toLocation, date,time  );
+            rideOffer.setKey( key );
 
-            // Use existing key and userId
-            RideOffer rideOffer = new RideOffer(key, userId, newDestination, newDate, newTime);
+            // get the Activity's listener to add the new job lead
+            EditRideOfferDialogListener listener = ( EditRideOfferDialogListener) getActivity();
+            // add the new job lead
+            listener.updateRideOffer( position, rideOffer, SAVE );
 
-            EditRideOfferDialogListener listener = (EditRideOfferDialogListener) getActivity();
-            //assert listener != null;
-            listener.updateRideOffer(getArguments().getInt("position"), rideOffer, SAVE);
+            // close the dialog
             dismiss();
         }
     }
 
     private class DeleteButtonClickListener implements DialogInterface.OnClickListener {
         @Override
-        public void onClick(DialogInterface dialog, int which) {
-            RideOffer rideOffer = new RideOffer(key, userId, destination, date, time);
+        public void onClick( DialogInterface dialog, int which ) {
 
-            EditRideOfferDialogListener listener = (EditRideOfferDialogListener) getActivity();
-            //assert listener != null;
-            listener.updateRideOffer(getArguments().getInt("position"), rideOffer, DELETE);
+            RideOffer rideOffer = new RideOffer( offerId, userId, fromLocation, toLocation, date, time );
+            rideOffer.setKey( key );
+
+            // get the Activity's listener to add the new job lead
+            EditRideOfferDialogListener listener = ( EditRideOfferDialogListener) getActivity();            // add the new job lead
+            listener.updateRideOffer( position, rideOffer, DELETE );
+            // close the dialog
             dismiss();
         }
     }
