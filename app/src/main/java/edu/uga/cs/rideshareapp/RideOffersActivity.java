@@ -19,7 +19,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class RideOffersActivity extends AppCompatActivity {
+public class RideOffersActivity extends  AppCompatActivity {
+    
     private EditText destinationInput;
     private EditText timeInput;
     private Button postOfferButton;
@@ -83,7 +84,7 @@ public class RideOffersActivity extends AppCompatActivity {
         Map<String, Object> rideOffer = new HashMap<>();
         rideOffer.put("destination", destination);
         rideOffer.put("time", time);
-        rideOffer.put("date", date); // Add the date here
+        rideOffer.put("date", date);
         rideOffer.put("driverId", FirebaseAuth.getInstance().getCurrentUser().getUid());
 
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -96,7 +97,9 @@ public class RideOffersActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> Toast.makeText(RideOffersActivity.this, "Ride offer posted!", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e -> Toast.makeText(RideOffersActivity.this, "Failed to post ride offer.", Toast.LENGTH_SHORT).show());*/
 
-        RideOffer rideOffers = new RideOffer(databaseReference.push().getKey(), userId, destination, date, time);
+
+
+        RideOffer rideOffers = new RideOffer( databaseReference.push().getKey(), userId, userId, destination, date, time);
         databaseReference.child("RideOffers").child(rideOffers.getOfferId()).setValue(rideOffer)
                 .addOnSuccessListener(aVoid -> {
                     // Handle success
@@ -107,4 +110,6 @@ public class RideOffersActivity extends AppCompatActivity {
                     Toast.makeText(RideOffersActivity.this, "Failed to post ride offer.", Toast.LENGTH_SHORT).show();
                 });
     }
+
+
 }
