@@ -114,35 +114,39 @@ public class RideRequestRecyclerAdapter extends RecyclerView.Adapter<RideRequest
     }
 
     public void acceptRideRequest(int position) {
+        if (position >= rideRequestsList.size()) {
+            Log.e(DEBUG_TAG, "Invalid index. Position: " + position + ", List size: " + rideRequestsList.size());
+            return; // Exit if the index is invalid
+        }
+
         RideRequest rideRequest = rideRequestsList.get(position);
-        String driverId = FirebaseAuth.getInstance().getCurrentUser().getUid(); // Assumes user is logged in
-
-        // Update ride request with acceptance details
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid(); // Assumes user is logged in
         rideRequest.setAccepted(true);
-        rideRequest.setDriverId(driverId); // Assuming RideRequest model has these fields
-
-        // Push to acceptedRides in Firebase
+        // Update and push to acceptedRides
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference newAcceptedRef = dbRef.child("acceptedRides").push();
         newAcceptedRef.setValue(rideRequest);
 
-        // Add reference for both driver and rider for easy retrieval
-        dbRef.child("users").child(rideRequest.getUserId()).child("acceptedRides").child(newAcceptedRef.getKey()).setValue(true);
-        dbRef.child("users").child(driverId).child("acceptedRides").child(newAcceptedRef.getKey()).setValue(true);
-
         // Remove from rideRequests
-        dbRef.child("rideRequests").child(rideRequest.getKey()).removeValue();
+        DatabaseReference requestRef = dbRef.child("riderequests").child(rideRequest.getKey());
+        requestRef.removeValue()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(DEBUG_TAG, "Ride request successfully deleted from Firebase.");
 
-        // Update local list and notify adapter
-        rideRequestsList.remove(position);
-        notifyItemRemoved(position);
+                    if (position < rideRequestsList.size()) {
+                        rideRequestsList.remove(position);
+                        notifyItemRemoved(position);
+                    }
+                }).addOnFailureListener(e -> {
+                    Log.e(DEBUG_TAG, "Failed to delete ride request from Firebase.", e);
+                });
 
-        // Show a Toast message
-        Toast.makeText(context, "Ride accepted successfully!", Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(context, AcceptedRidesActivity.class);
         intent.putExtra("rideKey", newAcceptedRef.getKey()); // Passing the unique key of the accepted ride
         context.startActivity(intent);
     }
+
+
 
 }

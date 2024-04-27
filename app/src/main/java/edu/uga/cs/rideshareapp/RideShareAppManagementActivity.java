@@ -15,7 +15,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class RideShareAppManagementActivity extends AppCompatActivity {
     private static final String DEBUG_TAG = "ManagementActivity";
-    private TextView signedInTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,13 +26,19 @@ public class RideShareAppManagementActivity extends AppCompatActivity {
         Button createRideOffers = findViewById(R.id.button2);
         Button viewRideOffers = findViewById(R.id.button3);
         Button logoutButton = findViewById(R.id.logoutButton);
-        signedInTextView = findViewById( R.id.textView3 );
+        Button viewAcceptedRides = findViewById(R.id.button4);
+        TextView signedInTextView = findViewById( R.id.textView3 );
+        Button viewPoints = findViewById( R.id.button5 );
 
 
         viewRideRequests.setOnClickListener( new RideRequestButtonClickListener() );
         createRideOffers.setOnClickListener( new RideOffersButtonClickListener() );
         viewRideOffers.setOnClickListener(new ViewRideOffersButtonClickListener() );
         logoutButton.setOnClickListener(new LogoutButtonClickListener());
+        viewAcceptedRides.setOnClickListener(new ViewAcceptedRidesClickListener());
+        viewPoints.setOnClickListener(new ViewPointsClickListener());
+
+
 
 
         // Setup a listener for a change in the sign in status (authentication status change)
@@ -76,6 +82,22 @@ public class RideShareAppManagementActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             Intent intent = new Intent(view.getContext(), ViewRideOffersActivity.class);
+            view.getContext().startActivity(intent);
+        }
+    }
+
+    private class ViewAcceptedRidesClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(view.getContext(), AcceptedRidesActivity.class);
+            view.getContext().startActivity(intent);
+        }
+    }
+
+    private class ViewPointsClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(view.getContext(), UserPointsActivity.class);
             view.getContext().startActivity(intent);
         }
     }
