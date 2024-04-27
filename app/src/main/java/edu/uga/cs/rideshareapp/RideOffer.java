@@ -9,6 +9,8 @@ public class RideOffer {
     private String time;
     private String key;           // Unique identifier for the ride request
 
+    private int points;
+
     // Default constructor is required for Firebase
     public RideOffer() {
 
@@ -23,6 +25,7 @@ public class RideOffer {
         this.destination = destination;
         this.date = date;
         this.time = time;
+        this.points = points;
     }
 
 
@@ -81,5 +84,13 @@ public class RideOffer {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public int getPoints() {
+        return  points;
+    }
+
+    public void setPoints(int newPoints){
+        this.points += newPoints;
     }
 }

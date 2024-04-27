@@ -113,7 +113,7 @@ public class RideOffersActivity extends  AppCompatActivity {
     }
 
     //idk if we need?
-    private void acceptRide(RideRequest rideRequest, String driverId) {
+   /* private void acceptRide(RideRequest rideRequest, String driverId) {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
         String newAcceptedRideId = ref.child("acceptedRides").push().getKey();
 
@@ -138,7 +138,7 @@ public class RideOffersActivity extends  AppCompatActivity {
                 Log.e("RideOffersActivity", "Failed to accept ride.", task.getException());
             }
         });
-    }
+    }*/
 
 
 
