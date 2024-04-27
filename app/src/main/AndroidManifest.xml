@@ -15,6 +15,9 @@
         android:theme="@style/Base.Theme.RideShareApp"
         tools:targetApi="31">
         <activity
+            android:name=".UserPointsActivity"
+            android:exported="false" />
+        <activity
             android:name=".AcceptedRidesAdapter"
             android:exported="false" />
         <activity

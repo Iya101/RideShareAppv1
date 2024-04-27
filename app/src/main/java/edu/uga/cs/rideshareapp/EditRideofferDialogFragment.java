@@ -15,7 +15,7 @@ import androidx.fragment.app.DialogFragment;
 
 // This is a DialogFragment to handle edits to a RideOffer.
 // The edits are: updates and deletions of existing JobLeads.
-public class EditRideOfferDialogFragment extends DialogFragment {
+public class EditRideofferDialogFragment extends DialogFragment {
 
     // indicate the type of an edit
     public static final int SAVE = 1;   // update an existing job lead
@@ -44,8 +44,8 @@ public class EditRideOfferDialogFragment extends DialogFragment {
         void updateRideOffer(int position, RideOffer rideOffer, int action);
     }
 
-    public static EditRideOfferDialogFragment newInstance(int position, String key, String fromLocation, String toLocation, String date, String time, String userId) {
-        EditRideOfferDialogFragment dialog = new EditRideOfferDialogFragment();
+    public static EditRideofferDialogFragment newInstance(int position, String key, String fromLocation, String toLocation, String date, String time, String userId) {
+        EditRideofferDialogFragment dialog = new EditRideofferDialogFragment();
 
         // Supply job lead values as an argument.
         Bundle args = new Bundle();
