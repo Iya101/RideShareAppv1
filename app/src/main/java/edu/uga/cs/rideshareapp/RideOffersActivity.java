@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -110,6 +111,36 @@ public class RideOffersActivity extends  AppCompatActivity {
                     Toast.makeText(RideOffersActivity.this, "Failed to post ride offer.", Toast.LENGTH_SHORT).show();
                 });
     }
+
+    //idk if we need?
+   /* private void acceptRide(RideRequest rideRequest, String driverId) {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+        String newAcceptedRideId = ref.child("acceptedRides").push().getKey();
+
+        // Creating a map for the accepted ride
+        Map<String, Object> acceptedRideMap = new HashMap<>();
+        acceptedRideMap.put("destination", rideRequest.getDestination());
+        acceptedRideMap.put("date", rideRequest.getDate());
+        acceptedRideMap.put("time", rideRequest.getTime());
+        acceptedRideMap.put("riderId", rideRequest.getRiderId());
+        acceptedRideMap.put("driverId", driverId);
+        acceptedRideMap.put("points", rideRequest.getPoints());
+
+        // Transactional operations: Remove from requests, add to accepted
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("/rideRequests/" + rideRequest.getRequestId(), null);  // Remove the request
+        updates.put("/acceptedRides/" + newAcceptedRideId, acceptedRideMap);  // Add to accepted
+
+        ref.updateChildren(updates).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Log.d("RideOffersActivity", "Ride accepted successfully.");
+            } else {
+                Log.e("RideOffersActivity", "Failed to accept ride.", task.getException());
+            }
+        });
+    }*/
+
+
 
 
 }

@@ -113,5 +113,21 @@ public class RideRequest {
     public String toString() {
         return "Ride from " + fromLocation + " to " + toLocation + " on " + date + (isAccepted ? " accepted by driver ID: " + driverId : "") + " | Comments: " + time;
     }
+//Maybe we delete maybe we keep
+    public String getDestination() {
+        return toLocation;
+    }
+
+    public String getRiderId() {
+        return userId;
+    }
+
+    public int getPoints() {
+        return pointsCost;
+    }
+
+    public String getRequestId() {
+        return userId;
+    }
 }
 
