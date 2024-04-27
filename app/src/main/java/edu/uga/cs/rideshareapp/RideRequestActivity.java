@@ -108,6 +108,29 @@ public class RideRequestActivity
         } );
     }
 
+    private void fetchRideRequests() {
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("riderequests");
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                rideRequestsList.clear(); // Clear the existing data
+                for (DataSnapshot postSnapshot : snapshot.getChildren()) {
+                    RideRequest rideRequest = postSnapshot.getValue(RideRequest.class);
+                    if (rideRequest != null && !rideRequest.isAccepted()) {  // Ensure we filter out accepted rides
+                        rideRequest.setKey(postSnapshot.getKey());
+                        rideRequestsList.add(rideRequest);
+                    }
+                }
+                recyclerAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e(DEBUG_TAG, "Database error: " + databaseError.getMessage());
+            }
+        });
+    }
+
     // this is our own callback for a AddRideRequestDialogFragment which adds a new ride request.
     public void addRideRequest(RideRequest rideRequest) {
         // add the new ride request
@@ -159,28 +182,28 @@ public class RideRequestActivity
     // The edit may be an update or a deletion of this rideRequest.
     // It is called from the EditRideRequestDialogFragment.
     public void updateRideRequest( int position, RideRequest rideRequest, int action ) {
-        if( action == EditRideRequestDialogFragment.SAVE ) {
-            Log.d( DEBUG_TAG, "Updating ride request at: " + position + "(" + rideRequest.getDate() + ")" );
+        if (action == EditRideRequestDialogFragment.SAVE) {
+            Log.d(DEBUG_TAG, "Updating ride request at: " + position + "(" + rideRequest.getDate() + ")");
 
             // Update the recycler view to show the changes in the updated ride request in that view
-            recyclerAdapter.notifyItemChanged( position );
+            recyclerAdapter.notifyItemChanged(position);
 
             // Update this ride request in Firebase
             // Note that we are using a specific key (one child in the list)
             DatabaseReference ref = database
                     .getReference()
-                    .child( "riderequests" )
-                    .child( rideRequest.getKey() );
+                    .child("riderequests")
+                    .child(rideRequest.getKey());
 
             // This listener will be invoked asynchronously, hence no need for an AsyncTask class, as in the previous apps
             // to maintain job leads.
-            ref.addListenerForSingleValueEvent( new ValueEventListener() {
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public void onDataChange( @NonNull DataSnapshot dataSnapshot ) {
-                    dataSnapshot.getRef().setValue( rideRequest ).addOnSuccessListener( new OnSuccessListener<Void>() {
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    dataSnapshot.getRef().setValue(rideRequest).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.d( DEBUG_TAG, "updated ride request at: " + position + "(" + rideRequest.getDate() + ")" );
+                            Log.d(DEBUG_TAG, "updated ride request at: " + position + "(" + rideRequest.getDate() + ")");
                             Toast.makeText(getApplicationContext(), "ride request updated for " + rideRequest.getDate(),
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -188,51 +211,57 @@ public class RideRequestActivity
                 }
 
                 @Override
-                public void onCancelled( @NonNull DatabaseError databaseError ) {
-                    Log.d( DEBUG_TAG, "failed to update ride request at: " + position + "(" + rideRequest.getDate() + ")" );
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.d(DEBUG_TAG, "failed to update ride request at: " + position + "(" + rideRequest.getDate() + ")");
                     Toast.makeText(getApplicationContext(), "Failed to update " + rideRequest.getDate(),
                             Toast.LENGTH_SHORT).show();
                 }
             });
-        }
-        else if( action == EditRideRequestDialogFragment.DELETE ) {
-            Log.d( DEBUG_TAG, "Deleting ride request at: " + position + "(" + rideRequest.getDate() + ")" );
+        } else if (action == EditRideRequestDialogFragment.DELETE) {
+            Log.d(DEBUG_TAG, "Deleting ride request at: " + position + "(" + rideRequest.getDate() + ")");
 
             // remove the deleted ride request from the list (internal list in the App)
-            rideRequestsList.remove( position );
+            rideRequestsList.remove(position);
 
             // Update the recycler view to remove the deleted ride request from that view
-            recyclerAdapter.notifyItemRemoved( position );
+            recyclerAdapter.notifyItemRemoved(position);
 
             // Delete this ride request in Firebase.
             // Note that we are using a specific key (one child in the list)
             DatabaseReference ref = database
                     .getReference()
-                    .child( "riderequests" )
-                    .child( rideRequest.getKey() );
+                    .child("riderequests")
+                    .child(rideRequest.getKey());
 
             // This listener will be invoked asynchronously, hence no need for an AsyncTask class, as in the previous apps
             // to maintain job leads.
-            ref.addListenerForSingleValueEvent( new ValueEventListener() {
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public void onDataChange( @NonNull DataSnapshot dataSnapshot ) {
-                    dataSnapshot.getRef().removeValue().addOnSuccessListener( new OnSuccessListener<Void>() {
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    dataSnapshot.getRef().removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Log.d( DEBUG_TAG, "deleted ride request at: " + position + "(" + rideRequest.getDate() + ")" );
+                            Log.d(DEBUG_TAG, "deleted ride request at: " + position + "(" + rideRequest.getDate() + ")");
                             Toast.makeText(getApplicationContext(), "ride request deleted for " + rideRequest.getDate(),
-                                    Toast.LENGTH_SHORT).show();                        }
+                                    Toast.LENGTH_SHORT).show();
+                        }
                     });
                 }
 
                 @Override
-                public void onCancelled( @NonNull DatabaseError databaseError ) {
-                    Log.d( DEBUG_TAG, "failed to delete ride request at: " + position + "(" + rideRequest.getDate() + ")" );
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.d(DEBUG_TAG, "failed to delete ride request at: " + position + "(" + rideRequest.getDate() + ")");
                     Toast.makeText(getApplicationContext(), "Failed to delete " + rideRequest.getDate(),
                             Toast.LENGTH_SHORT).show();
                 }
             });
         }
+
     }
-    
+
+    protected void onResume() {
+        super.onResume();
+        fetchRideRequests();  // Refresh data when returning to the activity
+    }
+
 }

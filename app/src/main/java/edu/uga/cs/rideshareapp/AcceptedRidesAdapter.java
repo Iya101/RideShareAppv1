@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class AcceptedRidesAdapter extends RecyclerView.Adapter<AcceptedRidesAdap
     // ViewHolder class to hold the item view
     public static class AcceptedRideViewHolder extends RecyclerView.ViewHolder {
         public TextView dateView, fromView, toView, driverView, riderView, pointsView;
+        public Button confirmButton;
 
         public AcceptedRideViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -31,13 +33,14 @@ public class AcceptedRidesAdapter extends RecyclerView.Adapter<AcceptedRidesAdap
             driverView = itemView.findViewById(R.id.driverTextView);
             riderView = itemView.findViewById(R.id.riderTextView);
             pointsView = itemView.findViewById(R.id.pointsTextView);
+            confirmButton = itemView.findViewById(R.id.confirmButton);
         }
     }
 
     @NonNull
     @Override
     public AcceptedRideViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_accepted_rides, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_accepted_rides_adapter, parent, false);
         return new AcceptedRideViewHolder(itemView);
     }
 
@@ -58,6 +61,12 @@ public class AcceptedRidesAdapter extends RecyclerView.Adapter<AcceptedRidesAdap
     public int getItemCount() {
         return acceptedRidesList.size();
     }
+
+
+
+
+
+
 }
 
 

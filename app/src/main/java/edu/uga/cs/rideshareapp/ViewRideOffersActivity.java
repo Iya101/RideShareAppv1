@@ -25,7 +25,7 @@ import java.util.List;
 
 public class ViewRideOffersActivity extends AppCompatActivity
         implements AddRideOfferDialogFragment.AddRideOfferDialogListener,
-        EditRideOfferDialogFragment.EditRideOfferDialogListener {
+        EditRideofferDialogFragment.EditRideOfferDialogListener {
 
     public static final String DEBUG_TAG = "ViewRideOffersActivity";
 
