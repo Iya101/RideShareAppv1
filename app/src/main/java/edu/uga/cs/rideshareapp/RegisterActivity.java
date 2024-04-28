@@ -16,6 +16,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -24,6 +29,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     private EditText emailEditText;
     private EditText passworEditText;
+
+    private int id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,43 +47,61 @@ public class RegisterActivity extends AppCompatActivity {
     private class RegisterButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            final String email = emailEditText.getText().toString();
-            final String password = passworEditText.getText().toString();
+            final String email = emailEditText.getText().toString().trim();
+            final String password = passworEditText.getText().toString().trim();
+
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(RegisterActivity.this, "Email and password cannot be empty.", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+            firebaseAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(RegisterActivity.this, task -> {
+                        if (task.isSuccessful()) {
+                            // Registration successful
+                            Log.d(DEBUG_TAG, "createUserWithEmail:success");
+                            Toast.makeText(getApplicationContext(), "Registered user: " + email, Toast.LENGTH_SHORT).show();
 
-            // This is how we can create a new user using an email/password combination.
-            // Note that we also add an onComplete listener, which will be invoked once
-            // a new user has been created by Firebase.  This is how we will know the
-            // new user creation succeeded or failed.
-            // If a new user has been created, Firebase already signs in the new user;
-            // no separate sign in is needed.
-            firebaseAuth.createUserWithEmailAndPassword( email, password )
-                    .addOnCompleteListener( RegisterActivity.this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
+                            // Get the current user
+                            FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                                Toast.makeText( getApplicationContext(),
-                                        "Registered user: " + email,
-                                        Toast.LENGTH_SHORT ).show();
+                            // Generate random IDs
+                            int randomUserId = generateRandomId();
+                            int randomDriverId = generateRandomId();
 
-                                // Sign in success, update UI with the signed-in user's information
-                                Log.d( DEBUG_TAG, "createUserWithEmail: success" );
+                            // Store the IDs in Firebase under the user's profile
+                            if (user != null) {
+                                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users").child(user.getUid());
+                                Map<String, Object> updates = new HashMap<>();
+                                updates.put("userId", randomUserId);
+                                updates.put("driverId", randomDriverId);
 
-                                FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                                Intent intent = new Intent( RegisterActivity.this, RideShareAppManagementActivity.class );
-                                startActivity( intent );
-
-                            } else {
-                                // If sign in fails, display a message to the user.
-                                Log.w(DEBUG_TAG, "createUserWithEmail: failure", task.getException());
-                                Toast.makeText(RegisterActivity.this, "Registration failed.",
-                                        Toast.LENGTH_SHORT).show();
+                                databaseReference.updateChildren(updates).addOnCompleteListener(task1 -> {
+                                    if (task1.isSuccessful()) {
+                                        Log.d(DEBUG_TAG, "User and driver IDs added to database successfully.");
+                                        Intent intent = new Intent(RegisterActivity.this, RideShareAppManagementActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    } else {
+                                        Log.e(DEBUG_TAG, "Failed to add user and driver IDs", task1.getException());
+                                        Toast.makeText(RegisterActivity.this, "Failed to save user data.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                             }
+
+                        } else {
+                            // Registration failed
+                            Log.w(DEBUG_TAG, "createUserWithEmail:failure", task.getException());
+                            Toast.makeText(RegisterActivity.this, "Registration failed.", Toast.LENGTH_SHORT).show();
                         }
                     });
         }
     }
+
+    private int generateRandomId() {
+        return (int) (Math.random() * 100000);  // Generate a random number up to 100000
+    }
+
 }

@@ -34,7 +34,7 @@ public class AcceptedRidesActivity extends AppCompatActivity {
 
         // Initialize the list and adapter
         acceptedRidesList = new ArrayList<>();
-        adapter = new AcceptedRidesAdapter(acceptedRidesList);
+        adapter = new AcceptedRidesAdapter(acceptedRidesList, AcceptedRidesActivity.this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
