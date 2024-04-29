@@ -12,6 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+/**
+ * this dialog will pop up when user is ready for sign in.
+ */
 public class UserSignInDialogFragment extends DialogFragment {
     private EditText emailView;
     private EditText passwordView;

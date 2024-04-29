@@ -13,6 +13,11 @@ import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+
+/**
+ * main app buttons, once user is signed in.
+ * This activity is all buttons which lead into different activities.
+ */
 public class RideShareAppManagementActivity extends AppCompatActivity {
     private static final String DEBUG_TAG = "ManagementActivity";
 
@@ -37,7 +42,6 @@ public class RideShareAppManagementActivity extends AppCompatActivity {
         logoutButton.setOnClickListener(new LogoutButtonClickListener());
         viewAcceptedRides.setOnClickListener(new ViewAcceptedRidesClickListener());
         viewPoints.setOnClickListener(new ViewPointsClickListener());
-
 
 
 

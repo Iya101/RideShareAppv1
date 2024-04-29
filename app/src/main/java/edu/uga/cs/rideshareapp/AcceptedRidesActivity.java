@@ -18,11 +18,15 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ *  AcceptedRidesActivity lists all accepted ride offers and ride requests.
+ */
 public class AcceptedRidesActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private AcceptedRidesAdapter adapter;
-    private List<RideRequest> acceptedRidesList;
+    private List<Ride> acceptedRidesList;
 
     public static final String TAG = "AcceptedRidesActivity";
 

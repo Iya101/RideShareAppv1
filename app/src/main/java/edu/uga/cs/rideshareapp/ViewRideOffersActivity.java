@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -23,6 +24,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ *  ViewRideOffersActivity, you can edit add ride offers in here
+ */
 public class ViewRideOffersActivity extends AppCompatActivity
         implements AddRideOfferDialogFragment.AddRideOfferDialogListener,
         EditRideofferDialogFragment.EditRideOfferDialogListener {
@@ -64,7 +69,9 @@ public class ViewRideOffersActivity extends AppCompatActivity
 
         // get a Firebase DB instance reference
         database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("rideoffers");
+        DatabaseReference myRef = database.getReference("RideOffers");
+
+        fetchAllAcceptedRides();
 
         // Set up a listener (event handler) to receive a value for the database reference.
         // This type of listener is called by Firebase once by immediately executing its onDataChange method
@@ -99,10 +106,12 @@ public class ViewRideOffersActivity extends AppCompatActivity
 
     // this is our own callback for a AddRideRequestDialogFragment which adds a new ride request.
     public void addRideOffer(RideOffer rideOffer) {
+        RideOffer newRideOffer = new RideOffer();
+        newRideOffer.setOffer(true);
         // add the new ride request
         // Add a new element (rideOffer) to the list of job leads in Firebase.
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("rideoffers");
+        DatabaseReference myRef = database.getReference("RideOffers");
 
         // First, a call to push() appends a new node to the existing list (one is created
         // if this is done for the first time).  Then, we set the value in the newly created
@@ -158,7 +167,7 @@ public class ViewRideOffersActivity extends AppCompatActivity
             // Note that we are using a specific key (one child in the list)
             DatabaseReference ref = database
                     .getReference()
-                    .child( "rideoffers" )
+                    .child( "RideOffers" )
                     .child( rideOffer.getKey() );
 
             // This listener will be invoked asynchronously, hence no need for an AsyncTask class, as in the previous apps
@@ -197,7 +206,7 @@ public class ViewRideOffersActivity extends AppCompatActivity
             // Note that we are using a specific key (one child in the list)
             DatabaseReference ref = database
                     .getReference()
-                    .child( "rideoffers" )
+                    .child( "RideOffers" )
                     .child( rideOffer.getKey() );
 
             // This listener will be invoked asynchronously, hence no need for an AsyncTask class, as in the previous apps
@@ -222,6 +231,41 @@ public class ViewRideOffersActivity extends AppCompatActivity
                 }
             });
         }
-    }
 
+
+    }
+    private void fetchAllAcceptedRides() {
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference("RideOffers");
+        dbRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(DEBUG_TAG, "Child added with data: " + dataSnapshot.getValue());
+                RideOffer newRide = dataSnapshot.getValue(RideOffer.class);
+                if (newRide != null) {
+                    rideOffersList.add(newRide);
+                    recyclerAdapter.notifyItemInserted(rideOffersList.size() - 1);
+                    Log.d(DEBUG_TAG, "New ride offer added to list, total rides: " + rideOffersList.size());
+                } else {
+                    Log.d(DEBUG_TAG, "Failed to parse data into RideOffer");
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(DEBUG_TAG, "loadAcceptedRides:onCancelled", databaseError.toException());
+            }
+        });
+    }
 }

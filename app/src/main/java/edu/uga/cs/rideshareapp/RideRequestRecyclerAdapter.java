@@ -20,6 +20,9 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
+/**
+ * The RideRequestRecyclerAdapter, holds all information inputted by user, and the accept button.
+ */
 public class RideRequestRecyclerAdapter extends RecyclerView.Adapter<RideRequestRecyclerAdapter.RideRequestHolder> {
 
     public static final String DEBUG_TAG = "RideRequestRecyclerAdapter";
@@ -30,6 +33,10 @@ public class RideRequestRecyclerAdapter extends RecyclerView.Adapter<RideRequest
     public RideRequestRecyclerAdapter( List<RideRequest> rideRequestsList, Context context ) {
         this.rideRequestsList = rideRequestsList;
         this.context = context;
+    }
+
+    public boolean isRideRequestCard() {
+        return true;
     }
 
     // The adapter must have a ViewHolder class to "hold" one item to show.

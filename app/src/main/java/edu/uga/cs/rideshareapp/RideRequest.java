@@ -1,6 +1,6 @@
 package edu.uga.cs.rideshareapp;
 
-public class RideRequest {
+public class RideRequest implements Ride {
 
     private String key;           // Unique identifier for the ride request
     private String userId;        // ID of the user who posted the ride request
@@ -11,6 +11,7 @@ public class RideRequest {
     private String time;          // Time or additional requirements
     private boolean isAccepted;   // If the ride request has been accepted
     private int pointsCost;       // Points cost associated with the ride
+    private boolean isOffer;      // Always false for RideRequest
 
     public RideRequest() {
         // Initialize all fields to default values
@@ -23,6 +24,7 @@ public class RideRequest {
         this.time = null;
         this.isAccepted = false;
         this.pointsCost = 0;
+        this.isOffer = false;    // Explicitly set as false
     }
 
     public RideRequest(String userId, String fromLocation, String toLocation, String date, String time, int pointsCost) {
@@ -33,10 +35,19 @@ public class RideRequest {
         this.time = time;
         this.isAccepted = false;  // By default, a new request is not accepted
         this.pointsCost = pointsCost;
+        this.isOffer = false;    // Explicitly set as false
     }
 
-    // Getters and Setters for all fields
+    public boolean isOffer() {
+        return isOffer;
+    }
 
+    public void setOffer(boolean offer) {
+        isOffer = offer;
+    }
+
+
+    // Getters and Setters for all fields
     public String getUserId() {
         return userId;
     }

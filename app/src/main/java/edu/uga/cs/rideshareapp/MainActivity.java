@@ -28,6 +28,12 @@ import android.widget.Toast;
 import java.util.Arrays;
 import java.util.List;
 
+
+/**
+ * main entry of app, sign in or register
+ */
+
+
 public class MainActivity extends AppCompatActivity
         implements UserSignInDialogFragment.SignInDialogListener {
 

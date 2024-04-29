@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -26,8 +27,9 @@ import java.util.List;
 
 
 /**
- * This is an activity class for listing the current job leads.
- * The current job leads are listed as a RecyclerView.
+ * Ride Request Activity.
+ * user is able to add, edit, delete ride requests all within this activity
+ * it calls on the add and edit dialog fragments.
  */
 public class RideRequestActivity
         extends AppCompatActivity
@@ -48,8 +50,17 @@ public class RideRequestActivity
 
         Log.d( DEBUG_TAG, "onCreate()" );
 
+
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_ride_request );
+
+        // Attempt to get the ActionBar
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        } else {
+            Log.e("RideRequestActivity", "ActionBar is not available in this theme.");
+        }
 
         recyclerView = findViewById( R.id.recyclerView );
 
@@ -133,6 +144,9 @@ public class RideRequestActivity
 
     // this is our own callback for a AddRideRequestDialogFragment which adds a new ride request.
     public void addRideRequest(RideRequest rideRequest) {
+        RideRequest newRideRequest = new RideRequest();
+
+        newRideRequest.setOffer(false);  //
         // add the new ride request
         // Add a new element (rideRequest) to the list of job leads in Firebase.
         FirebaseDatabase database = FirebaseDatabase.getInstance();

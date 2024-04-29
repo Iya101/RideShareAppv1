@@ -3,6 +3,8 @@ package edu.uga.cs.rideshareapp;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,21 +14,27 @@ import android.widget.TextView;
 
 import java.util.List;
 
+/**
+ * AcceptedRidesAdapter, holds the card view of for displaying in the activity.
+ */
 public class AcceptedRidesAdapter extends RecyclerView.Adapter<AcceptedRidesAdapter.AcceptedRideViewHolder> {
-    private List<RideRequest> acceptedRidesList;
+
+    private List<Ride> acceptedRidesList;
+    private Context context;
 
     // Constructor for the adapter
-    public AcceptedRidesAdapter(List<RideRequest> acceptedRidesList) {
+    public AcceptedRidesAdapter(List<Ride> acceptedRidesList) {
         this.acceptedRidesList = acceptedRidesList;
     }
 
     // ViewHolder class to hold the item view
     public static class AcceptedRideViewHolder extends RecyclerView.ViewHolder {
-        public TextView dateView, fromView, toView, driverView, riderView, pointsView;
+        public TextView offerView, dateView, fromView, toView, driverView, riderView, pointsView;
         public Button confirmButton;
 
         public AcceptedRideViewHolder(@NonNull View itemView) {
             super(itemView);
+            offerView =  itemView.findViewById(R.id.offerTextView);
             dateView = itemView.findViewById(R.id.dateTextView);
             fromView = itemView.findViewById(R.id.fromTextView);
             toView = itemView.findViewById(R.id.toTextView);
@@ -34,6 +42,8 @@ public class AcceptedRidesAdapter extends RecyclerView.Adapter<AcceptedRidesAdap
             riderView = itemView.findViewById(R.id.riderTextView);
             pointsView = itemView.findViewById(R.id.pointsTextView);
             confirmButton = itemView.findViewById(R.id.confirmButton);
+
+
         }
     }
 
@@ -44,16 +54,42 @@ public class AcceptedRidesAdapter extends RecyclerView.Adapter<AcceptedRidesAdap
         return new AcceptedRideViewHolder(itemView);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull AcceptedRideViewHolder holder, int position) {
-        RideRequest ride = acceptedRidesList.get(position);
+        Ride ride = acceptedRidesList.get(position);
         if (ride != null) {
-            if (holder.dateView != null) holder.dateView.setText(ride.getDate());
-            if (holder.fromView != null) holder.fromView.setText(ride.getFromLocation());
-            if (holder.toView != null) holder.toView.setText(ride.getToLocation());
-            if (holder.driverView != null) holder.driverView.setText("Driver: " + ride.getDriverId());
-            if (holder.riderView != null) holder.riderView.setText("Rider: " + ride.getUserId());
-            if (holder.pointsView != null) holder.pointsView.setText("Points: " + ride.getPointsCost());
+
+            holder.offerView.setText(ride.isOffer() ? "Offer" : "Request");
+            holder.dateView.setText(ride.getDate());
+            holder.fromView.setText(ride.getFromLocation());
+            holder.toView.setText(ride.getToLocation());
+            holder.driverView.setText("Driver: " + ride.getDriverId());
+            holder.riderView.setText("Rider: " + ride.getUserId());
+            holder.pointsView.setText("Points: " + ride.getPointsCost());
+
+            holder.confirmButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (ride.isOffer()) {
+                        // If it's a ride offer, decrease rider points
+                        // Add your logic here to decrease rider points
+                        int currentPoints = ride.getPointsCost();
+                        // Decrease points logic here
+                        int newPoints = currentPoints - 10; // DECREASE_POINTS_AMOUNT is the amount to decrease
+                        ride.setPointsCost(newPoints);
+                        notifyDataSetChanged(); // Notify adapter of data change
+                    } else {
+                        // If it's a ride request, increase driver points
+                        // Add your logic here to increase driver points
+                        int currentPoints = ride.getPointsCost();
+                        // Increase points logic here
+                        int newPoints = currentPoints + 10; // INCREASE_POINTS_AMOUNT is the amount to increase
+                        ride.setPointsCost(newPoints);
+                        notifyDataSetChanged(); // Notify adapter of data change
+                    }
+                }
+            });
         }
     }
 
@@ -61,13 +97,11 @@ public class AcceptedRidesAdapter extends RecyclerView.Adapter<AcceptedRidesAdap
     public int getItemCount() {
         return acceptedRidesList.size();
     }
-
-
-
-
-
-
 }
+
+
+
+
 
 
 
